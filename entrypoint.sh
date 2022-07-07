@@ -6,12 +6,8 @@ REDIS_CONF_DIR=${REDIS_CONF_DIR:-"/etc/redis"}
 PERSISTENCE_ENABLED=${PERSISTENCE_ENABLED:-"false"}
 DATA_DIR=${DATA_DIR:-"/data/redis"}
 EXTERNAL_CONFIG_FILE=${EXTERNAL_CONFIG_FILE:-"/etc/redis/external.conf.d/redis-external.conf"}
-ACL_FILE_CONF=${REDIS_CONF_DIR}/aclfile.conf
-EXTERNAL_ACL_FILE=${REDIS_CONF_DIR}/acl.conf.d/aclfile.conf
-REDIS_CONF_FILE=${DATA_DIR}/redis.conf
-REDIS_LOGS_FILE=${DATA_DIR}/logs/redis-server.log
-REDIS_NODES_CONF_FILE=${DATA_DIR}/nodes.conf
-SENTINEL_CONF_FILE=${DATA_DIR}/sentinel.conf
+
+
 
 apply_permissions() {
     chgrp -R 0 /opt
@@ -43,6 +39,10 @@ start_redis() {
 }
 
 main_function() {
+  appctl retry 120 1 0 appctl checkMyIp || {
+    echo "------- ERROR: Get My IP FALT -------"
+    return 1
+  }
   common_operation
   appctl aclfileUpdate
   appctl buildRedisConfig
